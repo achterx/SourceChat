@@ -17,7 +17,6 @@ namespace Patterns
 						   "5.25",
 						   "A1 ? ? ? ? 85 C0 0F 85 ? ? ? ? 68 ? ? ? ? E8 ? ? ? ? 8B F0" );
 
-
 		DEFINE_PATTERNS_2( IN_Move,
 						   "5.25",
 						   "83 3D ? ? ? ? ? 75 ? 83 3D ? ? ? ? ? 74 ? FF 74 24 08",
@@ -40,15 +39,20 @@ namespace Patterns
 						   "5.25 Hooked",
 						   "E9 ? ? ? ? 90 90 90 90 8D 04 24" );
 
-
-		DEFINE_PATTERNS_1( GetClientVoiceMgr,
+		DEFINE_PATTERNS_2( GetClientVoiceMgr,
 						   "5.25",
-						   "E8 ? ? ? ? 8B C8 E8 ? ? ? ? 84 C0 0F 85" );
+						   "E8 ? ? ? ? 8B C8 E8 ? ? ? ? 84 C0 0F 85",
+						   "5.26",
+						   "E8 ? ? ? ? 56 8B C8" );
 
-		DEFINE_PATTERNS_2( CVoiceStatus__IsPlayerBlocked,
+		DEFINE_PATTERNS_4( CVoiceStatus__IsPlayerBlocked,
 						   "5.25",
 						   "83 EC ? A1 ? ? ? ? 33 C4 89 44 24 10 56",
 						   "5.25 Hooked",
-						   "E9 ? ? ? ? 90 90 90 33 C4 89 44 24 10 56" );
+						   "E9 ? ? ? ? 90 90 90 33 C4 89 44 24 10 56",
+						   "5.26",
+						   "83 EC ? A1 ? ? ? ? 33 C4 89 44 24 10 A1 ? ? ? ? 56",
+						   "5.26 Hooked",
+						   "E9 ? ? ? ? 90 90 90 33 C4 89 44 24 10 A1 ? ? ? ? 56" );
 	}
 }

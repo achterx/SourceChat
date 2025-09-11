@@ -115,7 +115,7 @@ const char *CSourceChatPlugin::GetAuthor( void )
 
 const char *CSourceChatPlugin::GetVersion( void )
 {
-	return "0.1.4b";
+	return "0.1.5b";
 }
 
 const char *CSourceChatPlugin::GetDescription( void )

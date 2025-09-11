@@ -1644,11 +1644,11 @@ bool CSourceChat::Load( void )
 	int patternIndex;
 	bool ScanOK = true;
 
-	void *pfnSoundEngine;
 	void *pfnHost_FilterTime;
+	void *pfnSoundEngine;
 
 	DEFINE_PATTERNS_FUTURE( fKey_Event );
-	DEFINE_PATTERNS_FUTURE( fpSoundEngine );
+	DEFINE_PATTERNS_FUTURE( fm_pSoundEngine );
 	DEFINE_PATTERNS_FUTURE( fIN_Move );
 	DEFINE_PATTERNS_FUTURE( fGetClientColor );
 	DEFINE_PATTERNS_FUTURE( fCHudTextMessage__MsgFunc_TextMsg );
@@ -1660,7 +1660,7 @@ bool CSourceChat::Load( void )
 	auto fHost_FilterTime = MemoryUtils()->FindPatternAsync( SvenModAPI()->Modules()->Hardware, Patterns::Hardware::Host_FilterTime );
 
 	MemoryUtils()->FindPatternAsync( SvenModAPI()->Modules()->Hardware, Patterns::Hardware::Key_Event, fKey_Event );
-	MemoryUtils()->FindPatternAsync( SvenModAPI()->Modules()->Client, Patterns::Client::m_pSoundEngine, fpSoundEngine );
+	MemoryUtils()->FindPatternAsync( SvenModAPI()->Modules()->Client, Patterns::Client::m_pSoundEngine, fm_pSoundEngine );
 	MemoryUtils()->FindPatternAsync( SvenModAPI()->Modules()->Client, Patterns::Client::IN_Move, fIN_Move );
 	MemoryUtils()->FindPatternAsync( SvenModAPI()->Modules()->Client, Patterns::Client::GetClientColor, fGetClientColor );
 	MemoryUtils()->FindPatternAsync( SvenModAPI()->Modules()->Client, Patterns::Client::CHudTextMessage__MsgFunc_TextMsg, fCHudTextMessage__MsgFunc_TextMsg );
@@ -1670,94 +1670,94 @@ bool CSourceChat::Load( void )
 
 	if ( ( pfnHost_FilterTime = fHost_FilterTime.get() ) == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't find function \"Host_FilterTime\"\n" );
+		Warning( "[Source Chat] Couldn't find function \"Host_FilterTime\"\n" );
 		ScanOK = false;
 	}
 	else
 	{
-		PluginLogMsg( g_pSourceChatPlugin, "Found function \"Host_FilterTime\" (0x%X)\n", pfnHost_FilterTime );
+		DevMsg( "[Source Chat] Found function \"Host_FilterTime\" (0x%X)\n", pfnHost_FilterTime );
 	}
 
 	if ( ( m_pfnKey_Event = MemoryUtils()->GetPatternFutureValue( fKey_Event, &patternIndex ) ) == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't find function \"Key_Event\"\n" );
+		Warning("[Source Chat] Couldn't find function \"Key_Event\"\n");
 		ScanOK = false;
 	}
 	else
 	{
-		PluginLogMsg( g_pSourceChatPlugin, "Found function \"Key_Event\" (0x%X) for version \"%s\"\n", m_pfnKey_Event, GET_PATTERN_NAME_BY_INDEX( Patterns::Hardware::Key_Event, patternIndex ) );
+		DevMsg( "[Source Chat] Found function \"Key_Event\" for version \"%s\"\n", GET_PATTERN_NAME_BY_INDEX( Patterns::Hardware::Key_Event, patternIndex ) );
 	}
 
-	if ( ( pfnSoundEngine = MemoryUtils()->GetPatternFutureValue( fpSoundEngine, &patternIndex ) ) == NULL )
+	if ( ( pfnSoundEngine = MemoryUtils()->GetPatternFutureValue( fm_pSoundEngine, &patternIndex ) ) == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't find variable \"m_pSoundEngine\"\n" );
+		Warning("[Source Chat] Couldn't find variable \"m_pSoundEngine\"\n");
 		ScanOK = false;
 	}
 	else
 	{
-		PluginLogMsg( g_pSourceChatPlugin, "Found variable \"m_pSoundEngine\" (0x%X) for version \"%s\"\n", pfnSoundEngine, GET_PATTERN_NAME_BY_INDEX( Patterns::Client::m_pSoundEngine, patternIndex ) );
+		DevMsg( "[Source Chat] Found variable \"m_pSoundEngine\" for version \"%s\"\n", GET_PATTERN_NAME_BY_INDEX( Patterns::Client::m_pSoundEngine, patternIndex ) );
 	}
-
+	
 	if ( ( m_pfnIN_Move = MemoryUtils()->GetPatternFutureValue( fIN_Move, &patternIndex ) ) == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't find function \"IN_Move\"\n" );
+		Warning("[Source Chat] Couldn't find function \"IN_Move\"\n");
 		ScanOK = false;
 	}
 	else
 	{
-		PluginLogMsg( g_pSourceChatPlugin, "Found function \"IN_Move\" (0x%X) for version \"%s\"\n", m_pfnIN_Move, GET_PATTERN_NAME_BY_INDEX( Patterns::Client::IN_Move, patternIndex ) );
+		DevMsg( "[Source Chat] Found function \"IN_Move\" for version \"%s\"\n", GET_PATTERN_NAME_BY_INDEX( Patterns::Client::IN_Move, patternIndex ) );
 	}
 
 	if ( ( m_pfnGetClientColor = (GetClientColorFn)MemoryUtils()->GetPatternFutureValue( fGetClientColor, &patternIndex ) ) == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't find function \"GetClientColor\"\n" );
+		Warning("[Source Chat] Couldn't find function \"GetClientColor\"\n");
 		ScanOK = false;
 	}
 	else
 	{
-		PluginLogMsg( g_pSourceChatPlugin, "Found function \"GetClientColor\" (0x%X) for version \"%s\"\n", m_pfnGetClientColor, GET_PATTERN_NAME_BY_INDEX( Patterns::Client::GetClientColor, patternIndex ) );
+		DevMsg( "[Source Chat] Found function \"GetClientColor\" for version \"%s\"\n", GET_PATTERN_NAME_BY_INDEX( Patterns::Client::GetClientColor, patternIndex ) );
 	}
 
 	if ( ( m_pfnCHudTextMessage__MsgFunc_TextMsg = MemoryUtils()->GetPatternFutureValue( fCHudTextMessage__MsgFunc_TextMsg, &patternIndex ) ) == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't find function \"CHudTextMessage::MsgFunc_TextMsg\"\n" );
+		Warning("[Source Chat] Couldn't find function \"CHudTextMessage::MsgFunc_TextMsg\"\n");
 		ScanOK = false;
 	}
 	else
 	{
-		PluginLogMsg( g_pSourceChatPlugin, "Found function \"CHudTextMessage::MsgFunc_TextMsg\" (0x%X) for version \"%s\"\n", m_pfnCHudTextMessage__MsgFunc_TextMsg, GET_PATTERN_NAME_BY_INDEX( Patterns::Client::CHudTextMessage__MsgFunc_TextMsg, patternIndex ) );
+		DevMsg( "[Source Chat] Found function \"CHudTextMessage::MsgFunc_TextMsg\" for version \"%s\"\n", GET_PATTERN_NAME_BY_INDEX( Patterns::Client::CHudTextMessage__MsgFunc_TextMsg, patternIndex ) );
 	}
 
 	if ( ( m_pfnCClient_SoundEngine__Play2DSound = (CClient_SoundEngine__Play2DSoundFn)MemoryUtils()->GetPatternFutureValue( fCClient_SoundEngine__Play2DSound, &patternIndex ) ) == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't find function \"CClient_SoundEngine::Play2DSound\"\n" );
+		Warning("[Source Chat] Couldn't find function \"CClient_SoundEngine::Play2DSound\"\n");
 		ScanOK = false;
 	}
 	else
 	{
-		PluginLogMsg( g_pSourceChatPlugin, "Found function \"CClient_SoundEngine::Play2DSound\" (0x%X) for version \"%s\"\n", m_pfnCClient_SoundEngine__Play2DSound, GET_PATTERN_NAME_BY_INDEX( Patterns::Client::CClient_SoundEngine__Play2DSound, patternIndex ) );
+		DevMsg( "[Source Chat] Found function \"CClient_SoundEngine::Play2DSound\" for version \"%s\"\n", GET_PATTERN_NAME_BY_INDEX( Patterns::Client::CClient_SoundEngine__Play2DSound, patternIndex ) );
 	}
 
 	if ( ( m_pfnGetClientVoiceMgr = (GetClientVoiceMgrFn)MemoryUtils()->GetPatternFutureValue( fGetClientVoiceMgr, &patternIndex ) ) == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't find function \"GetClientVoiceMgr\"\n" );
+		Warning("[Source Chat] Couldn't find function \"GetClientVoiceMgr\"\n");
 		ScanOK = false;
 	}
 	else
 	{
 		m_pfnGetClientVoiceMgr = (GetClientVoiceMgrFn)MemoryUtils()->CalcAbsoluteAddress( m_pfnGetClientVoiceMgr ); // CALL [GetClientVoiceMgr]
 
-		PluginLogMsg( g_pSourceChatPlugin, "Found function \"GetClientVoiceMgr\" (0x%X) for version \"%s\"\n", m_pfnGetClientVoiceMgr, GET_PATTERN_NAME_BY_INDEX( Patterns::Client::GetClientVoiceMgr, patternIndex ) );
+		DevMsg( "[Source Chat] Found function \"GetClientVoiceMgr\" for version \"%s\"\n", GET_PATTERN_NAME_BY_INDEX( Patterns::Client::GetClientVoiceMgr, patternIndex ) );
 	}
 
 	if ( ( m_pfnCVoiceStatus__IsPlayerBlocked = (CVoiceStatus__IsPlayerBlockedFn)MemoryUtils()->GetPatternFutureValue( fCVoiceStatus__IsPlayerBlocked, &patternIndex ) ) == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't find function \"CVoiceStatus::IsPlayerBlocked\"\n" );
+		Warning("[Source Chat] Couldn't find function \"CVoiceStatus::IsPlayerBlocked\"\n");
 		ScanOK = false;
 	}
 	else
 	{
-		PluginLogMsg( g_pSourceChatPlugin, "Found function \"CVoiceStatus::IsPlayerBlocked\" (0x%X) for version \"%s\"\n", m_pfnCVoiceStatus__IsPlayerBlocked, GET_PATTERN_NAME_BY_INDEX( Patterns::Client::CVoiceStatus__IsPlayerBlocked, patternIndex ) );
+		DevMsg( "[Source Chat] Found function \"CVoiceStatus::IsPlayerBlocked\" for version \"%s\"\n", GET_PATTERN_NAME_BY_INDEX( Patterns::Client::CVoiceStatus__IsPlayerBlocked, patternIndex ) );
 	}
 
 	if ( !ScanOK )
@@ -1768,7 +1768,7 @@ bool CSourceChat::Load( void )
 
 	if ( !m_pfnSDL_PollEvent )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't get function \"SDL_PollEvent\"\n" );
+		Warning( "Couldn't get function \"SDL_PollEvent\"\n" );
 		return false;
 	}
 
@@ -1776,7 +1776,7 @@ bool CSourceChat::Load( void )
 
 	if ( !m_pfnSDL_GL_SwapWindow )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't get function \"SDL_GL_SwapWindow\"\n" );
+		Warning( "Couldn't get function \"SDL_GL_SwapWindow\"\n" );
 		return false;
 	}
 #else
@@ -1784,7 +1784,7 @@ bool CSourceChat::Load( void )
 
 	if ( !m_pfnwglSwapBuffers )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't get function \"wglSwapBuffers\"\n" );
+		Warning( "Couldn't get function \"wglSwapBuffers\"\n" );
 		return false;
 	}
 #endif
@@ -1793,7 +1793,7 @@ bool CSourceChat::Load( void )
 
 	if ( !m_pfnSetCursorPos )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Couldn't get function \"SetCursorPos\"\n" );
+		Warning( "Couldn't get function \"SetCursorPos\"\n" );
 		return false;
 	}
 
@@ -1805,13 +1805,26 @@ bool CSourceChat::Load( void )
 	// Get SDL functions
 #if IMGUI_USE_SDL
 	// Check for JMP opcode
+#if defined(SC_5_26)
+	if ( *(unsigned char *)m_pfnSDL_PollEvent == 0xE9 ||
+		 ( *( (unsigned char *)m_pfnSDL_PollEvent + 4 ) == 0xFF && *( (unsigned char *)m_pfnSDL_PollEvent + 5 ) == 0x25 ) )
+#else
 	if ( *(unsigned char *)m_pfnSDL_PollEvent == 0xE9 ||
 		 ( *(unsigned char *)m_pfnSDL_PollEvent == 0xFF && *( (unsigned char *)m_pfnSDL_PollEvent + 1 ) == 0x25 ) )
+#endif
 	{
 		if ( *(unsigned char *)m_pfnSDL_PollEvent == 0xE9 )
 			m_pfnSDL_PollEvent = MemoryUtils()->CalcAbsoluteAddress( m_pfnSDL_PollEvent );
 		else
+	#if defined(SC_5_26)
+		{
+			m_pfnSDL_PollEvent = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_PollEvent + 6 ) );
+			//AssertFatal( *( (unsigned char *)m_pfnSDL_PollEvent + 8 ) == 0xE8 );
+			//m_pfnSDL_PollEvent = MemoryUtils()->CalcAbsoluteAddress( (unsigned char *)m_pfnSDL_PollEvent + 8 );
+		}
+	#else
 			m_pfnSDL_PollEvent = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_PollEvent + 2 ) );
+	#endif
 	}
 
 	// Check for JMP opcode
@@ -1821,7 +1834,15 @@ bool CSourceChat::Load( void )
 		if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xE9 )
 			m_pfnSDL_GL_SwapWindow = MemoryUtils()->CalcAbsoluteAddress( m_pfnSDL_GL_SwapWindow );
 		else
+	#if defined(SC_5_26)
+		{
 			m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
+			AssertFatal( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xE9 );
+			m_pfnSDL_GL_SwapWindow = MemoryUtils()->CalcAbsoluteAddress( m_pfnSDL_GL_SwapWindow );
+		}
+	#else
+			m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
+	#endif
 	}
 #else
 	if ( *(unsigned char *)m_pfnwglSwapBuffers == 0xE9 )
@@ -1855,7 +1876,7 @@ bool CSourceChat::Load( void )
 
 	if ( m_dbRealtime == NULL )
 	{
-		PluginLogError( g_pSourceChatPlugin, "Failed to get \"realtime\"\n" );
+		Warning( "[Source Chat] Failed to get \"realtime\"\n" );
 		return false;
 	}
 
