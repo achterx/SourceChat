@@ -78,7 +78,11 @@
 #include <TargetConditionals.h>
 #endif
 
+#if defined(SC_5_26)
+#define SDL_FORCE_USE_OLD_API ( 0 )
+#else
 #define SDL_FORCE_USE_OLD_API ( 1 )
+#endif
 
 #if SDL_VERSION_ATLEAST(2,0,4) && !defined(__EMSCRIPTEN__) && !defined(__ANDROID__) && !(defined(__APPLE__) && TARGET_OS_IOS) && !defined(__amigaos4__)
 #define SDL_HAS_CAPTURE_AND_GLOBAL_MOUSE    1

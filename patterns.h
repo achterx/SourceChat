@@ -12,7 +12,6 @@ namespace Patterns
 	namespace Hardware
 	{
 		EXTERN_PATTERN( Host_FilterTime );
-
 		EXTERN_PATTERNS( Key_Event );
 	}
 
