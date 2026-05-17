@@ -1837,14 +1837,19 @@ bool CSourceChat::Load( void )
 #if defined(SC_5_26)
 		{
 			m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
-			Warning( "SDL_GL_SwapWindow opcode: 0x%02X\n", *(unsigned char *)m_pfnSDL_GL_SwapWindow );
-			AssertFatal( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xE9 );
-			m_pfnSDL_GL_SwapWindow = MemoryUtils()->CalcAbsoluteAddress( m_pfnSDL_GL_SwapWindow );
+			if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xE9 )
+			{
+				m_pfnSDL_GL_SwapWindow = MemoryUtils()->CalcAbsoluteAddress( m_pfnSDL_GL_SwapWindow );
+			}
+			else if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xFF &&
+			          *( (unsigned char *)m_pfnSDL_GL_SwapWindow + 1 ) == 0x25 )
+			{
+				m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
+			}
 		}
 	#else
 			m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
 	#endif
-	}
 #else
 	if ( *(unsigned char *)m_pfnwglSwapBuffers == 0xE9 )
 	{
