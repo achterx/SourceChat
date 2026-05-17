@@ -1131,13 +1131,6 @@ char *CSourceChat::PushMessageToBuffer( char *buffer, int maxsize, const char *m
 
 		buffer[ maxsize ] = '\0';
 	}
-	/*
-	else if ( msgsize == maxsize ) // message size matches buffer size
-	{
-		memcpy( (char *)buffer, (char *)msg, msgsize );
-		buffer[maxsize] = '\0';
-	}
-	*/
 
 	return msg_pos;
 }
@@ -1287,8 +1280,6 @@ void CSourceChat::FadeThink( void )
 	ImU32 *colors_active = (ImU32 *)&ColorSchemeActive;
 	ImU32 *colors_scheme = (ImU32 *)&ColorScheme;
 
-	//ImU32 *TextOffsetPtr = colors_active + TextOffset;
-
 	bool bFadeIn = ( flFadeInDuration > 0.f && m_flOpenTime != -1.f && flFadeInTime >= m_flCurrentTime );
 	bool bFadeOut = ( flFadeOutDuration > 0.f && m_flCloseTime != -1.f && flFadeOutTime >= m_flCurrentTime );
 
@@ -1302,11 +1293,6 @@ void CSourceChat::FadeThink( void )
 
 			for ( int i = 0; i < sizeof( CChatColorScheme ) / sizeof( ImU32 ); i++ )
 			{
-				// Skip CChatColorScheme::Text
-				//if ( colors_active + i == TextOffsetPtr )
-				//	continue;
-
-				// Still closing... use alpha value from the close event
 				if ( flFadeOutTime > m_flOpenTime )
 				{
 					fadeOutFraction = ( flFadeOutTime - m_flCurrentTime ) / flFadeOutDuration;
@@ -1329,10 +1315,6 @@ void CSourceChat::FadeThink( void )
 		{
 			for ( int i = 0; i < sizeof( CChatColorScheme ) / sizeof( ImU32 ); i++ )
 			{
-				// Skip CChatColorScheme::Text
-				//if ( colors_active + i == TextOffsetPtr )
-				//	continue;
-
 				colors_active[ i ] = ( ( colors_scheme[ i ] & IM_COL32_A_MASK ) | ( colors_scheme[ i ] & 0x00FFFFFF ) );
 			}
 		}
@@ -1347,11 +1329,6 @@ void CSourceChat::FadeThink( void )
 
 			for ( int i = 0; i < sizeof( CChatColorScheme ) / sizeof( ImU32 ); i++ )
 			{
-				// Skip CChatColorScheme::Text
-				//if ( colors_active + i == TextOffsetPtr )
-				//	continue;
-
-				// Still opening... use alpha value from the open event
 				if ( flFadeInTime > m_flCloseTime )
 				{
 					fadeInFraction = 1.f - ( ( flFadeInTime - m_flCurrentTime ) / flFadeInDuration );
@@ -1373,17 +1350,10 @@ void CSourceChat::FadeThink( void )
 		{
 			for ( int i = 0; i < sizeof( CChatColorScheme ) / sizeof( ImU32 ); i++ )
 			{
-				// Skip CChatColorScheme::Text
-				//if ( colors_active + i == TextOffsetPtr )
-				//	continue;
-
 				colors_active[ i ] &= 0x00FFFFFF;
 			}
 		}
 	}
-
-	// Calc alpha for each text line
-	// * ImTextOpacity::userdata is a print time
 
 	float fraction;
 
@@ -1413,30 +1383,7 @@ void CSourceChat::FadeThink( void )
 		for ( int i = 0; i < m_TextOpacity.size(); i++ )
 		{
 			ImTextOpacity &textOpacity = m_TextOpacity[ i ];
-
-			//if ( bFadeIn )
-			//{
-			//	if ( textOpacity.userdata + flActualStayTime <= flFadeInTime )
-			//	{
-			//		textOpacity.alpha = textRealAlphaInt;
-			//	}
-			//	else if ( m_flCurrentTime > textOpacity.userdata + flStayTime )
-			//	{
-			//		float startAlpha = textAlpha * ( ( m_flOpenTime - ( textOpacity.userdata + flStayTime ) ) / flFadeDuration );
-
-			//		fraction = 1.f - ( ( flFadeInTime - m_flCurrentTime ) / flFadeInDuration );
-
-			//		textOpacity.alpha = int( startAlpha + ( textAlpha - startAlpha ) * fraction );
-			//	}
-			//	else
-			//	{
-			//		textOpacity.alpha = textAlphaInt;
-			//	}
-			//}
-			//else
-			//{
 			textOpacity.alpha = textAlphaInt;
-			//}
 		}
 	}
 	else
@@ -1573,7 +1520,7 @@ void CSourceChat::InitFont( void )
 	}
 
 	// Load small font Tahoma
-	m_pFontSmall = io.Fonts->AddFontFromFileTTF( "svencoop/resource/sourcechat/tahoma.ttf", ChatSchemeActive.FontSmallSize, &cfg, ranges ); // TODO: custom font?
+	m_pFontSmall = io.Fonts->AddFontFromFileTTF( "svencoop/resource/sourcechat/tahoma.ttf", ChatSchemeActive.FontSmallSize, &cfg, ranges );
 
 	if ( m_pFontSmall == NULL )
 	{
@@ -1641,6 +1588,9 @@ void CSourceChat::OnClose( void )
 
 bool CSourceChat::Load( void )
 {
+	// Reset debug log
+	{ FILE *dbg = fopen( "sourcechat_debug.txt", "w" ); if ( dbg ) fclose( dbg ); }
+
 	int patternIndex;
 	bool ScanOK = true;
 
@@ -1827,7 +1777,7 @@ bool CSourceChat::Load( void )
 	#endif
 	}
 
-// Check for JMP opcode
+	// Check for JMP opcode
 	if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xE9 ||
 		 ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xFF && *( (unsigned char *)m_pfnSDL_GL_SwapWindow + 1 ) == 0x25 ) )
 	{
@@ -1836,16 +1786,28 @@ bool CSourceChat::Load( void )
 		else
 	#if defined(SC_5_26)
 		{
-			m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
-			if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xE9 )
+			void *p1 = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
+
+			{ FILE *dbg = fopen( "sourcechat_debug.txt", "a" ); if ( dbg ) { fprintf( dbg, "p1: 0x%02X 0x%02X\n", *(unsigned char *)p1, *( (unsigned char *)p1 + 1 ) ); fclose( dbg ); } }
+
+			if ( *(unsigned char *)p1 == 0xE9 )
 			{
-				m_pfnSDL_GL_SwapWindow = MemoryUtils()->CalcAbsoluteAddress( m_pfnSDL_GL_SwapWindow );
+				m_pfnSDL_GL_SwapWindow = MemoryUtils()->CalcAbsoluteAddress( p1 );
 			}
-			else if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xFF &&
-			          *( (unsigned char *)m_pfnSDL_GL_SwapWindow + 1 ) == 0x25 )
+			else if ( *(unsigned char *)p1 == 0xFF && *( (unsigned char *)p1 + 1 ) == 0x25 )
 			{
-				m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
+				void *p2 = (void *)( **(unsigned long **)( (unsigned char *)p1 + 2 ) );
+
+				{ FILE *dbg = fopen( "sourcechat_debug.txt", "a" ); if ( dbg ) { fprintf( dbg, "p2: 0x%02X 0x%02X\n", *(unsigned char *)p2, *( (unsigned char *)p2 + 1 ) ); fclose( dbg ); } }
+
+				m_pfnSDL_GL_SwapWindow = p2;
 			}
+			else
+			{
+				m_pfnSDL_GL_SwapWindow = p1;
+			}
+
+			{ FILE *dbg = fopen( "sourcechat_debug.txt", "a" ); if ( dbg ) { fprintf( dbg, "final: 0x%02X\n", *(unsigned char *)m_pfnSDL_GL_SwapWindow ); fclose( dbg ); } }
 		}
 	#else
 			m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
