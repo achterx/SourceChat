@@ -1827,7 +1827,7 @@ bool CSourceChat::Load( void )
 	#endif
 	}
 
-// Check for JMP opcode
+	// Check for JMP opcode
 	if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xE9 ||
 		 ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xFF && *( (unsigned char *)m_pfnSDL_GL_SwapWindow + 1 ) == 0x25 ) )
 	{
@@ -1836,16 +1836,9 @@ bool CSourceChat::Load( void )
 		else
 	#if defined(SC_5_26)
 		{
-			m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
-			if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xE9 )
-			{
-				m_pfnSDL_GL_SwapWindow = MemoryUtils()->CalcAbsoluteAddress( m_pfnSDL_GL_SwapWindow );
-			}
-			else if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xFF &&
-			          *( (unsigned char *)m_pfnSDL_GL_SwapWindow + 1 ) == 0x25 )
-			{
-				m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
-			}
+m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
+if ( *(unsigned char *)m_pfnSDL_GL_SwapWindow == 0xE9 )
+    m_pfnSDL_GL_SwapWindow = MemoryUtils()->CalcAbsoluteAddress( m_pfnSDL_GL_SwapWindow );
 		}
 	#else
 			m_pfnSDL_GL_SwapWindow = (void *)( **(unsigned long **)( (unsigned char *)m_pfnSDL_GL_SwapWindow + 2 ) );
